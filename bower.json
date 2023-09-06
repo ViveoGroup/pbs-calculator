@@ -1,0 +1,6 @@
+{
+  "name": "pbs-calculator",
+  "license": "CC0-1.0",
+  "main": "./lib/index.min.js",
+  "ignore": []
+}
