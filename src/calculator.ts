@@ -1,18 +1,11 @@
 import Decimal from "decimal.js";
 import {
+  AdditionalFeesForSafetyNetPrices,
   DispensingFees,
   PatientCoPaymentAmounts,
   getAHIFee,
   getWholesaleMarkup,
 } from "./fees";
-
-export interface ICalculateDispensedPriceInput {
-  approvedExManufacturerPrice: number;
-  maxQuantity: number;
-  packSize: number;
-  isDangerousDrug: boolean;
-  brandPremium?: number;
-}
 
 export function getPriceToPharmacy(aemp: number): number {
   return aemp + getWholesaleMarkup(aemp);
@@ -29,30 +22,42 @@ export function getPackSizeQuantityFactor(
   return maxQuantity / packSize;
 }
 
-export function getDispensedPriceForQuantity({
-  approvedExManufacturerPrice,
+export interface ICalculateDPMQInput {
+  aemp: number;
+  maxQuantity: number;
+  packSize: number;
+  isDangerousDrug?: boolean;
+  brandPremium?: number;
+  isExtemporaneouslyPrepared?: boolean;
+}
+
+export function calculateDPMQ({
+  aemp,
   maxQuantity,
   packSize,
   isDangerousDrug,
+  isExtemporaneouslyPrepared,
   brandPremium,
-}: ICalculateDispensedPriceInput) {
+}: ICalculateDPMQInput) {
   let cost = 0;
 
-  const dispenseFee = DispensingFees.ReadyPrepared;
-  cost += dispenseFee;
+  if (isExtemporaneouslyPrepared) {
+    cost += DispensingFees.ExtemporaneouslyPrepared;
+  } else {
+    cost += DispensingFees.ReadyPrepared;
+  }
 
   const qtyFactor = getPackSizeQuantityFactor(packSize, maxQuantity);
-  const priceToPharmacy = +new Decimal(
-    getPriceToPharmacy(approvedExManufacturerPrice) * qtyFactor
+  let priceToPharmacy = +new Decimal(
+    getPriceToPharmacy(aemp) * qtyFactor
   ).toFixed(2);
-  cost += priceToPharmacy;
-
-  const ahi = getAHIFee(priceToPharmacy) / qtyFactor;
-  cost += ahi;
 
   if (brandPremium) {
-    cost += brandPremium;
+    priceToPharmacy += brandPremium;
   }
+
+  cost += priceToPharmacy;
+  cost += getAHIFee(priceToPharmacy) / qtyFactor;
 
   if (isDangerousDrug) {
     cost += DispensingFees.DangerousDrugFee;
@@ -61,31 +66,52 @@ export function getDispensedPriceForQuantity({
   return +new Decimal(cost).toFixed(2);
 }
 
-export function getDiscountedPBSPrice() {}
-
-export interface ICalculatePBSPriceInput extends ICalculateDispensedPriceInput {
+export interface ICalculatePBSPriceFromAEMPInput extends ICalculateDPMQInput {
   includeAllowableDiscount: boolean;
+  isConcessional?: boolean;
 }
 
-export function getPBSPrice({
-  approvedExManufacturerPrice,
+export function calculatePBSPriceFromAEMP({
+  aemp,
   includeAllowableDiscount,
   packSize,
   maxQuantity,
   isDangerousDrug,
   brandPremium,
-}: ICalculatePBSPriceInput) {
-  const privatePrice = getDispensedPriceForQuantity({
-    approvedExManufacturerPrice,
+  isExtemporaneouslyPrepared,
+  isConcessional,
+}: ICalculatePBSPriceFromAEMPInput) {
+  const dpmq = calculateDPMQ({
+    aemp,
     maxQuantity,
     packSize,
     isDangerousDrug,
     brandPremium,
+    isExtemporaneouslyPrepared,
   });
 
+  return getPBSPrice({
+    dpmq,
+    isConcessional,
+    includeAllowableDiscount,
+  });
+}
+
+export interface ICalculatePBSPriceInput {
+  dpmq: number;
+  isConcessional?: boolean;
+  includeAllowableDiscount?: boolean;
+  isExtemporaneouslyPrepared?: boolean;
+}
+
+export function getPBSPrice({
+  dpmq,
+  isConcessional,
+  includeAllowableDiscount,
+}: ICalculatePBSPriceInput): number {
   let output = PatientCoPaymentAmounts.General;
 
-  if (privatePrice <= PatientCoPaymentAmounts.General) {
+  if (dpmq <= PatientCoPaymentAmounts.General || isConcessional) {
     output = PatientCoPaymentAmounts.Concessional;
   }
 
@@ -96,4 +122,24 @@ export function getPBSPrice({
   return output;
 }
 
-export const SafetyNetPrice = 0;
+export interface ICalculateSafetyNetPriceInput
+  extends ICalculatePBSPriceFromAEMPInput {}
+
+export function getSafetyNetPrice({
+  aemp: approvedExManufacturerPrice,
+  includeAllowableDiscount,
+  packSize,
+  maxQuantity,
+  isDangerousDrug,
+  brandPremium,
+  isConcessional,
+  isExtemporaneouslyPrepared,
+}: ICalculateSafetyNetPriceInput) {
+  let cost = 0;
+
+  cost += AdditionalFeesForSafetyNetPrices.ReadyPrepared;
+
+  if (isExtemporaneouslyPrepared) {
+    cost += AdditionalFeesForSafetyNetPrices.ExtemporaneouslyPrepared;
+  }
+}

@@ -1,10 +1,14 @@
-// Prices as at 1 July 2023
+/**
+ * Prices as at 1 July 2023
+ *
+ * - Maxalt 10mg Wafer 4 (2 x 2) - Rizatriptan
+ */
 
 import {
-  ICalculatePBSPriceInput,
-  ICalculateDispensedPriceInput,
-  getPBSPrice,
-  getDispensedPriceForQuantity,
+  ICalculateDPMQInput,
+  ICalculatePBSPriceFromAEMPInput,
+  calculateDPMQ,
+  calculatePBSPriceFromAEMP,
   getPackSizeQuantityFactor,
   getPriceToPharmacy,
 } from "./calculator";
@@ -27,155 +31,173 @@ describe("Calculator", () => {
 
   describe("Dispense prices", () => {
     test("Calculate dangerous drug fee", () => {
-      const input: ICalculateDispensedPriceInput = {
-        approvedExManufacturerPrice: 1,
+      const input: ICalculateDPMQInput = {
+        aemp: 1,
         maxQuantity: 30,
         packSize: 30,
         isDangerousDrug: true,
       };
 
-      expect(getDispensedPriceForQuantity(input)).toBe(19.58);
+      expect(calculateDPMQ(input)).toBe(19.58);
     });
 
     test("Calculate Sertraline dispense price", () => {
-      const input: ICalculateDispensedPriceInput = {
-        approvedExManufacturerPrice: 2.5,
+      const input: ICalculateDPMQInput = {
+        aemp: 2.5,
         maxQuantity: 30,
         packSize: 30,
-        isDangerousDrug: false,
       };
 
-      expect(getDispensedPriceForQuantity(input)).toBe(15.9);
+      expect(calculateDPMQ(input)).toBe(15.9);
     });
 
     test("Calculate Zoloft (Sertraline) dispense price", () => {
-      const input: ICalculateDispensedPriceInput = {
-        approvedExManufacturerPrice: 2.5,
+      const input: ICalculateDPMQInput = {
+        aemp: 2.5,
         maxQuantity: 30,
         packSize: 30,
-        isDangerousDrug: false,
         brandPremium: 5.58,
       };
 
-      expect(getDispensedPriceForQuantity(input)).toBe(21.48);
+      expect(calculateDPMQ(input)).toBe(21.48);
     });
 
     test("Calculate Sertraline dispensed price for half pack", () => {
-      const input: ICalculateDispensedPriceInput = {
-        approvedExManufacturerPrice: 2.5,
+      const input: ICalculateDPMQInput = {
+        aemp: 2.5,
         maxQuantity: 30,
         packSize: 15,
-        isDangerousDrug: false,
       };
 
-      expect(getDispensedPriceForQuantity(input)).toBe(16.5);
+      expect(calculateDPMQ(input)).toBe(16.5);
     });
 
     test("Calculate Jardiance dispensed price", () => {
-      const input: ICalculateDispensedPriceInput = {
-        approvedExManufacturerPrice: 44.66,
+      const input: ICalculateDPMQInput = {
+        aemp: 44.66,
         maxQuantity: 30,
         packSize: 30,
-        isDangerousDrug: false,
       };
 
-      expect(getDispensedPriceForQuantity(input)).toBe(61.01);
+      expect(calculateDPMQ(input)).toBe(61.01);
+    });
+
+    test("Calculate Flucloxacillin capsule 500mg", () => {
+      const input: ICalculateDPMQInput = {
+        aemp: 8.08,
+        maxQuantity: 48,
+        packSize: 24,
+      };
+
+      expect(calculateDPMQ(input)).toBe(29.46);
+    });
+
+    test("Calculate Capsule containing lisdexamfetamine dimesilate 20 mg (Vyvanse)", () => {
+      const input: ICalculateDPMQInput = {
+        aemp: 76.1,
+        maxQuantity: 30,
+        packSize: 30,
+      };
+
+      expect(calculateDPMQ(input)).toBe(99.99);
     });
 
     test("Calculate Atorvastatin 80mg dispensed price", () => {
-      const input: ICalculateDispensedPriceInput = {
-        approvedExManufacturerPrice: 4,
+      const input: ICalculateDPMQInput = {
+        aemp: 4,
         maxQuantity: 30,
         packSize: 30,
-        isDangerousDrug: false,
       };
 
-      expect(getDispensedPriceForQuantity(input)).toBe(17.29);
+      expect(calculateDPMQ(input)).toBe(17.29);
     });
 
     test("Calculate Atorvastatin 80mg dispensed price for half pack", () => {
-      const input: ICalculateDispensedPriceInput = {
-        approvedExManufacturerPrice: 4,
+      const input: ICalculateDPMQInput = {
+        aemp: 4,
         maxQuantity: 60,
         packSize: 30,
-        isDangerousDrug: false,
       };
 
-      expect(getDispensedPriceForQuantity(input)).toBe(21.59);
+      expect(calculateDPMQ(input)).toBe(21.59);
+    });
+
+    test("Calculate Fluticasone furoate for a single dose", () => {
+      const input: ICalculateDPMQInput = {
+        aemp: 74.01,
+        maxQuantity: 1,
+        packSize: 1,
+      };
+
+      expect(calculateDPMQ(input)).toBe(91.66);
     });
   });
 
   describe("Concessional pricing", () => {
     test("Calculate Sertraline concessional price with allowable discount", () => {
-      const input: ICalculatePBSPriceInput = {
-        approvedExManufacturerPrice: 2.5,
+      const input: ICalculatePBSPriceFromAEMPInput = {
+        aemp: 2.5,
         maxQuantity: 30,
         packSize: 30,
-        isDangerousDrug: false,
         includeAllowableDiscount: false,
       };
 
-      expect(getPBSPrice(input)).toBe(7.3);
+      expect(calculatePBSPriceFromAEMP(input)).toBe(7.3);
     });
 
     test("Calculate Sertraline concessional price with allowable discount", () => {
-      const input: ICalculatePBSPriceInput = {
-        approvedExManufacturerPrice: 2.5,
+      const input: ICalculatePBSPriceFromAEMPInput = {
+        aemp: 2.5,
         maxQuantity: 30,
         packSize: 30,
-        isDangerousDrug: false,
         includeAllowableDiscount: true,
       };
 
-      expect(getPBSPrice(input)).toBe(6.3);
+      expect(calculatePBSPriceFromAEMP(input)).toBe(6.3);
     });
 
     test("Calculate Atorvastatin 80mg concessional price with allowable discount", () => {
-      const input: ICalculatePBSPriceInput = {
-        approvedExManufacturerPrice: 4,
+      const input: ICalculatePBSPriceFromAEMPInput = {
+        aemp: 4,
         maxQuantity: 30,
         packSize: 30,
-        isDangerousDrug: false,
         includeAllowableDiscount: false,
       };
 
-      expect(getPBSPrice(input)).toBe(7.3);
+      expect(calculatePBSPriceFromAEMP(input)).toBe(7.3);
     });
 
     test("Calculate Atorvastatin 80mg concessional price for half pack with allowable discount", () => {
-      const input: ICalculatePBSPriceInput = {
-        approvedExManufacturerPrice: 4,
+      const input: ICalculatePBSPriceFromAEMPInput = {
+        aemp: 4,
         maxQuantity: 60,
         packSize: 30,
-        isDangerousDrug: false,
         includeAllowableDiscount: true,
       };
 
-      expect(getPBSPrice(input)).toBe(6.3);
+      expect(calculatePBSPriceFromAEMP(input)).toBe(6.3);
     });
 
     test("Expensive medication to be capped at $30", () => {
-      const input: ICalculatePBSPriceInput = {
-        approvedExManufacturerPrice: 400,
+      const input: ICalculatePBSPriceFromAEMPInput = {
+        aemp: 400,
         maxQuantity: 60,
         packSize: 30,
-        isDangerousDrug: false,
         includeAllowableDiscount: false,
       };
 
-      expect(getPBSPrice(input)).toBe(30);
+      expect(calculatePBSPriceFromAEMP(input)).toBe(30);
     });
 
     test("Expensive medication to be capped at $30 with $1 discount applied", () => {
-      const input: ICalculatePBSPriceInput = {
-        approvedExManufacturerPrice: 400,
+      const input: ICalculatePBSPriceFromAEMPInput = {
+        aemp: 400,
         maxQuantity: 60,
         packSize: 30,
-        isDangerousDrug: false,
         includeAllowableDiscount: true,
       };
 
-      expect(getPBSPrice(input)).toBe(29);
+      expect(calculatePBSPriceFromAEMP(input)).toBe(29);
     });
   });
 });

@@ -39,7 +39,7 @@ export function getAHIFee(priceToPharmacistsForMaxQuantity: number): number {
   }
 }
 
-export const AdditionalFees = {
+export const AdditionalFeesForSafetyNetPrices = {
   ReadyPrepared: 1.4,
   ExtemporaneouslyPrepared: 1.8,
 };

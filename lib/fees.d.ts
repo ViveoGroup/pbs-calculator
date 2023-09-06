@@ -10,7 +10,7 @@ export declare const DispensingFees: {
 };
 export declare function getWholesaleMarkup(aemp: number): number;
 export declare function getAHIFee(priceToPharmacistsForMaxQuantity: number): number;
-export declare const AdditionalFees: {
+export declare const AdditionalFeesForSafetyNetPrices: {
     ReadyPrepared: number;
     ExtemporaneouslyPrepared: number;
 };

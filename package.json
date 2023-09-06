@@ -12,6 +12,9 @@
     "type": "git",
     "url": "git+ssh://git@github.com/ViveoGroup/pbs-calculator.git"
   },
+  "pre-commit": [
+    "test"
+  ],
   "keywords": [
     "pbs",
     "pbs",
@@ -26,6 +29,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.4",
     "jest": "^29.6.4",
+    "pre-commit": "^1.2.2",
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
   },
