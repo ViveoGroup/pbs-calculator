@@ -66,52 +66,31 @@ export function calculateDPMQ({
   return +new Decimal(cost).toFixed(2);
 }
 
-export interface ICalculatePBSPriceFromAEMPInput extends ICalculateDPMQInput {
-  includeAllowableDiscount: boolean;
-  isConcessional?: boolean;
-}
-
-export function calculatePBSPriceFromAEMP({
-  aemp,
-  includeAllowableDiscount,
-  packSize,
-  maxQuantity,
-  isDangerousDrug,
-  brandPremium,
-  isExtemporaneouslyPrepared,
-  isConcessional,
-}: ICalculatePBSPriceFromAEMPInput) {
-  const dpmq = calculateDPMQ({
-    aemp,
-    maxQuantity,
-    packSize,
-    isDangerousDrug,
-    brandPremium,
-    isExtemporaneouslyPrepared,
-  });
-
-  return getPBSPrice({
-    dpmq,
-    isConcessional,
-    includeAllowableDiscount,
-  });
-}
-
 export interface ICalculatePBSPriceInput {
   dpmq: number;
   isConcessional?: boolean;
   includeAllowableDiscount?: boolean;
   isExtemporaneouslyPrepared?: boolean;
+  isSafetyNet?: boolean;
 }
 
 export function getPBSPrice({
   dpmq,
   isConcessional,
+  isSafetyNet,
   includeAllowableDiscount,
 }: ICalculatePBSPriceInput): number {
+  if (isConcessional && isSafetyNet) {
+    return 0;
+  }
+
   let output = PatientCoPaymentAmounts.General;
 
-  if (dpmq <= PatientCoPaymentAmounts.General || isConcessional) {
+  if (
+    dpmq <= PatientCoPaymentAmounts.General ||
+    isConcessional ||
+    (!isConcessional && isSafetyNet)
+  ) {
     output = PatientCoPaymentAmounts.Concessional;
   }
 
@@ -120,26 +99,4 @@ export function getPBSPrice({
   }
 
   return output;
-}
-
-export interface ICalculateSafetyNetPriceInput
-  extends ICalculatePBSPriceFromAEMPInput {}
-
-export function getSafetyNetPrice({
-  aemp: approvedExManufacturerPrice,
-  includeAllowableDiscount,
-  packSize,
-  maxQuantity,
-  isDangerousDrug,
-  brandPremium,
-  isConcessional,
-  isExtemporaneouslyPrepared,
-}: ICalculateSafetyNetPriceInput) {
-  let cost = 0;
-
-  cost += AdditionalFeesForSafetyNetPrices.ReadyPrepared;
-
-  if (isExtemporaneouslyPrepared) {
-    cost += AdditionalFeesForSafetyNetPrices.ExtemporaneouslyPrepared;
-  }
 }
