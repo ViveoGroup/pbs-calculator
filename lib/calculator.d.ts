@@ -15,5 +15,6 @@ export interface ICalculatePBSPriceInput {
     includeAllowableDiscount?: boolean;
     isExtemporaneouslyPrepared?: boolean;
     isSafetyNet?: boolean;
+    brandPremium?: number;
 }
-export declare function getPBSPrice({ dpmq, isConcessional, isSafetyNet, includeAllowableDiscount, }: ICalculatePBSPriceInput): number;
+export declare function getPBSPrice({ dpmq, isConcessional, isSafetyNet, includeAllowableDiscount, brandPremium, }: ICalculatePBSPriceInput): number;
