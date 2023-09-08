@@ -52,12 +52,12 @@ export function calculateDPMQ({
     getPriceToPharmacy(aemp) * qtyFactor
   ).toFixed(2);
 
-  if (brandPremium) {
-    priceToPharmacy += brandPremium;
-  }
-
   cost += priceToPharmacy;
   cost += getAHIFee(priceToPharmacy) / qtyFactor;
+
+  if (brandPremium) {
+    cost += brandPremium;
+  }
 
   if (isDangerousDrug) {
     cost += DispensingFees.DangerousDrugFee;
@@ -72,6 +72,7 @@ export interface ICalculatePBSPriceInput {
   includeAllowableDiscount?: boolean;
   isExtemporaneouslyPrepared?: boolean;
   isSafetyNet?: boolean;
+  brandPremium?: number;
 }
 
 export function getPBSPrice({
@@ -79,6 +80,7 @@ export function getPBSPrice({
   isConcessional,
   isSafetyNet,
   includeAllowableDiscount,
+  brandPremium,
 }: ICalculatePBSPriceInput): number {
   if (isConcessional && isSafetyNet) {
     return 0;
@@ -92,6 +94,10 @@ export function getPBSPrice({
     (!isConcessional && isSafetyNet)
   ) {
     output = PatientCoPaymentAmounts.Concessional;
+  }
+
+  if (brandPremium) {
+    output = output + brandPremium;
   }
 
   if (includeAllowableDiscount) {
