@@ -256,6 +256,29 @@ describe("Calculator", () => {
       ).toBe(0);
     });
 
+    test("Concessional safety net over 30 with brand premium", () => {
+      expect(
+        getPBSPrice({
+          dpmq: 50,
+          isConcessional: true,
+          isSafetyNet: true,
+          brandPremium: 10,
+        })
+      ).toBe(10);
+    });
+
+    test("Concessional safety net over 30 with brand premium and allowable discount", () => {
+      expect(
+        getPBSPrice({
+          dpmq: 50,
+          isConcessional: true,
+          isSafetyNet: true,
+          includeAllowableDiscount: true,
+          brandPremium: 10,
+        })
+      ).toBe(9);
+    });
+
     test("Concessional safety net over 30 with allowable discount", () => {
       expect(
         getPBSPrice({
@@ -283,6 +306,12 @@ describe("Calculator", () => {
 
     test("Non-concessional safety net equals 30", () => {
       expect(getPBSPrice({ dpmq: 30, isSafetyNet: true })).toBe(7.3);
+    });
+
+    test("Non-concessional safety net equals 30 and brand premium", () => {
+      expect(
+        getPBSPrice({ dpmq: 30, isSafetyNet: true, brandPremium: 10 })
+      ).toBe(17.3);
     });
 
     test("Non-concessional safety net equals 30 with allowable discount", () => {

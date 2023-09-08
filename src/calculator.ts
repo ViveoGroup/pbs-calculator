@@ -82,25 +82,25 @@ export function getPBSPrice({
   includeAllowableDiscount,
   brandPremium,
 }: ICalculatePBSPriceInput): number {
-  if (isConcessional && isSafetyNet) {
-    return 0;
-  }
+  let output = 0;
 
-  let output = PatientCoPaymentAmounts.General;
+  if (!(isConcessional && isSafetyNet)) {
+    output = PatientCoPaymentAmounts.General;
 
-  if (
-    dpmq <= PatientCoPaymentAmounts.General ||
-    isConcessional ||
-    (!isConcessional && isSafetyNet)
-  ) {
-    output = PatientCoPaymentAmounts.Concessional;
+    if (
+      dpmq <= PatientCoPaymentAmounts.General ||
+      isConcessional ||
+      (!isConcessional && isSafetyNet)
+    ) {
+      output = PatientCoPaymentAmounts.Concessional;
+    }
   }
 
   if (brandPremium) {
     output = output + brandPremium;
   }
 
-  if (includeAllowableDiscount) {
+  if (includeAllowableDiscount && output >= 1) {
     output = output - 1;
   }
 
