@@ -28,6 +28,7 @@ export interface ICalculateDPMQInput {
   packSize: number;
   isDangerousDrug?: boolean;
   brandPremium?: number;
+  includeAllowableDiscount?: boolean;
   isExtemporaneouslyPrepared?: boolean;
 }
 
@@ -38,6 +39,7 @@ export function calculateDPMQ({
   isDangerousDrug,
   isExtemporaneouslyPrepared,
   brandPremium,
+  includeAllowableDiscount,
 }: ICalculateDPMQInput) {
   let cost = 0;
 
@@ -61,6 +63,10 @@ export function calculateDPMQ({
 
   if (isDangerousDrug) {
     cost += DispensingFees.DangerousDrugFee;
+  }
+
+  if (includeAllowableDiscount && cost >= 1) {
+    cost = cost - 1;
   }
 
   return +new Decimal(cost).toFixed(2);
