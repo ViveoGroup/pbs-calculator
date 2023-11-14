@@ -6,9 +6,10 @@ export interface ICalculateDPMQInput {
     packSize: number;
     isDangerousDrug?: boolean;
     brandPremium?: number;
+    includeAllowableDiscount?: boolean;
     isExtemporaneouslyPrepared?: boolean;
 }
-export declare function calculateDPMQ({ aemp, maxQuantity, packSize, isDangerousDrug, isExtemporaneouslyPrepared, brandPremium, }: ICalculateDPMQInput): number;
+export declare function calculateDPMQ({ aemp, maxQuantity, packSize, isDangerousDrug, isExtemporaneouslyPrepared, brandPremium, includeAllowableDiscount, }: ICalculateDPMQInput): number;
 export interface ICalculatePBSPriceInput {
     dpmq: number;
     isConcessional?: boolean;

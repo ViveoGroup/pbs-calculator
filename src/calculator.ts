@@ -19,7 +19,8 @@ export function getPackSizeQuantityFactor(
     throw new Error("PACK_SIZE_LARGER_THAN_MAX_QUANTITY");
   }
 
-  return maxQuantity / packSize;
+  const answer = maxQuantity / packSize;
+  return answer;
 }
 
 export interface ICalculateDPMQInput {
