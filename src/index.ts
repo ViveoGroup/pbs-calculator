@@ -5,14 +5,4 @@ export { Fees, Calculator };
 
 const pbs = { Fees, Calculator };
 
-declare global {
-  interface Window {
-    pbs: any;
-  }
-}
-
-if (typeof process === "object") {
-  module.exports = pbs;
-} else {
-  window.pbs = pbs;
-}
+module.exports = pbs;
